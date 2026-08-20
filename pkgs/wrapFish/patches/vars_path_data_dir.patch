@@ -1,0 +1,52 @@
+diff --git a/src/env_universal_common.rs b/src/env_universal_common.rs
+index 7a8671064..0439b65b2 100644
+--- a/src/env_universal_common.rs
++++ b/src/env_universal_common.rs
+@@ -2,7 +2,7 @@
+ use crate::env::{EnvVar, EnvVarFlags, VarTable};
+ use crate::flog::{flog, flogf};
+ use crate::fs::{PotentialUpdate, lock_and_load, rewrite_via_temporary_file};
+-use crate::path::{ValidatedPath, path_get_config};
++use crate::path::{ValidatedPath, path_get_data};
+ use crate::prelude::*;
+ use crate::wutil::{FileId, INVALID_FILE_ID, file_id_for_file, file_id_for_path_narrow, wrealpath};
+ use fish_common::{UnescapeFlags, UnescapeStringStyle, unescape_string};
+@@ -618,7 +618,7 @@ fn read_message_internal(file: &File, vars: &mut VarTable) -> UvarFormat {
+ 
+ /// Return the default variable path, or an empty string on failure.
+ pub fn default_vars_path() -> WString {
+-    let ValidatedPath { path, ok } = path_get_config();
++    let ValidatedPath { path, ok } = path_get_data();
+     if !ok {
+         return WString::new();
+     }
+diff --git a/tests/checks/__fish_theme_migrate.fish b/tests/checks/__fish_theme_migrate.fish
+index ca720a3f2..3fdaf1b8f 100644
+--- a/tests/checks/__fish_theme_migrate.fish
++++ b/tests/checks/__fish_theme_migrate.fish
+@@ -114,7 +114,7 @@ set -U
+ # Test some historical values for __fish_config_theme_uvars_subset_of_historical_default.
+ {
+     provoke-migration
+-    echo >$__fish_config_dir/fish_variables \
++    echo >$__fish_user_data_dir/fish_variables \
+ '# VERSION: 3.0
+ SETUVAR __fish_initialized:0
+ SETUVAR fish_color_autosuggestion:555\x1ebrblack
+diff --git a/tests/checks/symlinks-not-overwritten.fish b/tests/checks/symlinks-not-overwritten.fish
+index 035f54529..71d820e78 100644
+--- a/tests/checks/symlinks-not-overwritten.fish
++++ b/tests/checks/symlinks-not-overwritten.fish
+@@ -2,9 +2,9 @@
+ # REQUIRES: %fish -c "not cygwin_nosymlinks"
+ 
+ # fish_variables
+-set -l target_file $XDG_CONFIG_HOME/fish/target_fish_variables
+-set -l fish_variables $XDG_CONFIG_HOME/fish/fish_variables
+-set -l backup_file $XDG_CONFIG_HOME/fish/fish_variables_backup
++set -l target_file $XDG_DATA_HOME/fish/target_fish_variables
++set -l fish_variables $XDG_DATA_HOME/fish/fish_variables
++set -l backup_file $XDG_DATA_HOME/fish/fish_variables_backup
+ 
+ echo >$target_file
+ cp $target_file $backup_file
